@@ -7,25 +7,25 @@
 
 function add-new-user {
 
-    echo "Введите имя пользователя: "
+    Write-Output "Введите имя пользователя: "
     $user_name = Read-Host #Считать имя пользователя
 
-    echo "Введите пароль: "
+    Write-Output "Введите пароль: "
     $password = Read-Host -AsSecureString #Считать пароль в безопасном виде
 
-    echo "Введите описание пользователя(оставить пустым если не требуется): "
+    Write-Output "Введите описание пользователя(оставить пустым если не требуется): "
     $desc = Read-Host
 
-    echo "Введите полное имя пользователя(оставить пустым если не требуется): "
+    Write-Output "Введите полное имя пользователя(оставить пустым если не требуется): "
     $full_name = Read-Host
 
-    echo "Добавить пользователя в группу Администраторы?: (да/нет)"
+    Write-Output "Добавить пользователя в группу Администраторы?: (да/нет)"
     $user_group = Read-Host
 
-    echo "Требовать смены пароля через время?: (да/нет)"
+    Write-Output "Требовать смены пароля через время?: (да/нет)"
     $pass_change = Read-Host
     
-    echo "Запретить пользователю менять пароль?: (да/нет)"
+    Write-Output "Запретить пользователю менять пароль?: (да/нет)"
     $user_may_change_password = Read-Host   
 
     New-LocalUser -Name $user_name -Password $password -Description $desc -FullName $full_name #создаём пользователя с именем $user_name и паролем $password
@@ -57,11 +57,11 @@ function add-new-user {
         Write-Warning "Неизвестный ответ. Выставлено значение по умолчанию."
     }
 
-    if ( $user_may_change_password = 'да' )
+    if ( $user_may_change_password -eq 'да' )
     {
         Set-LocalUser -Name $user_name -UserMayChangePassword 0
     }
-    elseif ( $user_may_change_password = 'нет')
+    elseif ( $user_may_change_password -eq 'нет')
     {
         Set-LocalUser -Name $user_name -UserMayChangePassword 1
     }
@@ -72,58 +72,73 @@ function add-new-user {
 
     pause
 
-    echo ""
+    Write-Output ""
 }
 
 function enable-default-admin {
     
     Enable-LocalUser "Администратор"
-            echo "Пользователь Администратор включен"
+            Write-Output "Пользователь Администратор включен"
     pause
     
-    echo ""
+    Write-Output ""
 }
 
-function change-password 
+function change_password 
 {
     
 
-    echo "Введите имя учетной записи у которой нужно изменить пароль:"
+    Write-Output "Введите имя учетной записи у которой нужно изменить пароль:"
     $user_name = Read-Host
 
     $message = "Введите новый пароль для пользователя "+ $user_name + ":"
     
-    echo $message
+    Write-Output $message
     $new_pass = Read-Host -AsSecureString
 
     Set-LocalUser -Name $user_name -Password $new_pass 
 
     pause
 
-    echo ""    
+    Write-Output ""    
 }
 
-function dns-loopback {
+function dns_loopback {
  Get-DnsClient
     
-    echo "Введите индекс сетевого адаптера:"
+    Write-Output "Введите индекс сетевого адаптера:"
     $index_net_adapter = Read-Host
 
     Set-DnsClientServerAddress -InterfaceIndex $index_net_adapter -ServerAddresses 127.0.0.1
 }
 
+function date_time()
+{
+    return (Get-Date -UFormat "%Y-%m-%d_%I-%M-%S").tostring()
+}
+
+function delete_files
+{
+    Write-Output "Введите путь откуда надо удалить файлы: "
+    $path_for_delete = Read-Host
+
+
+
+    Remove-Item $path_for_delete -Force -Recurse
+}
 
 $infinity = 0
 while ( $infinity -eq 0)
 {
 
-echo "1 Создать нового пользователя"
-echo "2 Включить встроенную учетную запись администратора"
-echo "3 Задать пароль для учетной записи"
-echo "4 Вывести список всех пользователей"
-echo "5 Выключить интернерт на ПК"
-echo "0 Выход"
-echo "Выберите пункт: "
+Write-Output "1 Создать нового пользователя"
+Write-Output "2 Включить встроенную учетную запись администратора"
+Write-Output "3 Задать пароль для учетной записи"
+Write-Output "4 Вывести список всех пользователей"
+Write-Output "5 Выключить интернерт на ПК"
+Write-Output "6 Удалить файлы из папки"
+Write-Output "0 Выход"
+Write-Output "Выберите пункт: "
 
 $user_choice = Read-Host
 if ($user_choice -eq 1)
@@ -138,28 +153,33 @@ if ( $user_choice -eq 2 )
 
 if ( $user_choice -eq 3 )
 {
-    change-password
+    change_password
 }
 
 
 if ( $user_choice -eq 4)
 {
     
-    return Get-LocalUser | select Name
-    echo ""
+    return Get-LocalUser | Select-Object Name
+    Write-Output ""
     
 }   
 
 if ( $user_choice -eq 5 )
 {
    
-   dns-loopback
+   dns_loopback
 
 } 
 
+if ( $user_choice -eq 6 )
+{
+   delete_files
+}
+
 if ( $user_choice -eq 0 )
 {
-    echo "До свидания!"
+    Write-Output "До свидания!"
     $infinity++
 }
 
